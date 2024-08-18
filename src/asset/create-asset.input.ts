@@ -15,7 +15,7 @@ export class CreateAssetInput {
   symbol: string;
 
   @IsInt()
-  decimal!: number;
+  decimals!: number;
 
   @IsString()
   balance: string;

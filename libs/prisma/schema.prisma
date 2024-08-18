@@ -60,8 +60,6 @@ model Asset {
     createdAt        DateTime           @default(now()) @db.Timestamp(3)
     /// 수정 일시
     updatedAt        DateTime           @updatedAt @db.Timestamp(3)
-    /// 타입
-    type             ASSET_TYPE
     /// 이름
     name             String
     /// 심볼
