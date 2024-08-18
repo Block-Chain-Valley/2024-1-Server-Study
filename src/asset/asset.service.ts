@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateAssetInput } from './create-asset.input';
 import { Prisma } from 'libs/prisma/generated/client';
+import { DeleteAssetInput } from './delete-asset.input';
 
 @Injectable()
 export class AssetService {
@@ -37,5 +38,11 @@ export class AssetService {
         return assetInfo;
       },
     );
+  }
+
+  async deleteAsset(deleteAssetInput: DeleteAssetInput) {
+    /// userAssetBalance만 지워주기
+    /// 실제로는 지우는게 아니라 status를 INACTIVE로 바꿔주기
+    console.log(deleteAssetInput);
   }
 }
