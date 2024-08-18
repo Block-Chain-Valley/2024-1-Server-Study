@@ -1,0 +1,121 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("PRISMA_DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+    output   = "./generated/client"
+}
+
+generator dbml {
+    provider = "prisma-dbml-generator"
+    output   = "./generated/dbml"
+}
+
+model User {
+    /// 아이디
+    id                     String             @id @default(cuid())
+    /// 지갑 주소
+    address                String             @unique @db.VarChar(42)
+    /// 마지막 업데이트된 블록 넘버
+    lastUpdatedBlockNumber Int?
+    /// 보유 자산 및 수량
+    userAssetBalances      UserAssetBalance[]
+    /// 거래 내역
+    transactions           Transaction[]
+    /// 생성 일시
+    createdAt              DateTime           @default(now()) @db.Timestamp(3)
+    /// 수정 일시
+    updatedAt              DateTime           @updatedAt @db.Timestamp(3)
+}
+
+model UserAssetBalance {
+    /// 사용자
+    user      User          @relation(fields: [userId], references: [id])
+    /// 사용자 아이디
+    userId    String
+    /// 자산
+    asset     Asset         @relation(fields: [assetId], references: [id])
+    /// 자산 아이디
+    assetId   String
+    /// 보유 자산 수량
+    balance   String
+    // 상태
+    status    ACTIVE_STATUS @default(ACTIVE)
+    /// 생성 일시
+    createdAt DateTime      @default(now()) @db.Timestamp(3)
+    /// 수정 일시
+    updatedAt DateTime      @updatedAt @db.Timestamp(3)
+
+    @@id([userId, assetId])
+}
+
+model Asset {
+    /// 아이디
+    id               String             @id @default(cuid())
+    /// 주소
+    address          String             @unique @db.VarChar(42)
+    /// 생성 일시
+    createdAt        DateTime           @default(now()) @db.Timestamp(3)
+    /// 수정 일시
+    updatedAt        DateTime           @updatedAt @db.Timestamp(3)
+    /// 타입
+    type             ASSET_TYPE
+    /// 이름
+    name             String
+    /// 심볼
+    symbol           String
+    /// 소숫점 자리수
+    decimals         Int
+    /// 설명
+    description      String?
+    /// 트랜잭션
+    transactions     Transaction[]
+    /// 사용자 자산
+    UserAssetBalance UserAssetBalance[]
+}
+
+model Transaction {
+    // 트랜잭션 아이디
+    id              String    @id @default(cuid())
+    // 트랜잭션 해시
+    transactionHash String    @db.VarChar(66)
+    // 사용자
+    user            User      @relation(fields: [userId], references: [id])
+    // 사용자 아이디
+    userId          String
+    // 거래 대상
+    targetAddress   String    @db.VarChar(42)
+    // 입금 / 출금 여부
+    direction       DIRECTION
+    // 자산
+    asset           Asset     @relation(fields: [address], references: [address])
+    // 자산 주소
+    address         String    @db.VarChar(42)
+    // 거래 수량
+    amount          String
+    // 발생 타임스탬프
+    timestamp       Int
+    // 생성 일시
+    createdAt       DateTime  @default(now()) @db.Timestamp(3)
+    // 수정 일시
+    updatedAt       DateTime  @updatedAt @db.Timestamp(3)
+
+    @@unique([transactionHash, targetAddress])
+}
+
+enum ASSET_TYPE {
+    TOKEN
+    NFT
+}
+
+enum DIRECTION {
+    SEND
+    RECEIVE
+}
+
+enum ACTIVE_STATUS {
+    ACTIVE
+    INACTIVE
+}
